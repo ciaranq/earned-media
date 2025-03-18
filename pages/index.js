@@ -92,7 +92,7 @@ export default function SEOAnalyzer() {
   
     <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
 
-      <h1 style={{ color: "#333", marginBottom: "20px" }}>SEO Analyzer</h1>
+      <h1 style={{ color: "#333", marginBottom: "20px" }}>SEO Analyzer (AI SEO agent by Ciaran)</h1>
       
       <form onSubmit={handleAnalysis} style={{ marginBottom: "30px" }}>
         <div style={{ marginBottom: "15px" }}>
@@ -257,6 +257,7 @@ export default function SEOAnalyzer() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
