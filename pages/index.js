@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 
-function Header() {
+export function Header() {
   return (
     <header style={{ 
       borderBottom: '1px solid #e5e7eb', 
@@ -22,7 +22,6 @@ function Header() {
             <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#0070f3' }}>SEO Agent</span>
           </a>
         </div>
-        
         <div style={{ display: 'flex', gap: '24px' }}>
           <a href="/" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Home</a>
           <a href="/about" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>About</a>
