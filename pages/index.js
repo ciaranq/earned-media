@@ -23,7 +23,7 @@ export function Header() {
           </a>
         </div>
         <div style={{ display: 'flex', gap: '24px' }}>
-          <a href="/" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Home</a>
+          <a href="https://nextjs-boilerplate-organicseo.vercel.app/projects" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Projects</a>
           <a href="/about" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>About</a>
           <a href="/tools" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Tools</a>
           <a href="/contact" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Contact</a>
