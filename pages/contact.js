@@ -1,64 +1,180 @@
-// pages/api/contact.js
-import nodemailer from 'nodemailer';
+import Head from 'next/head';
+import { Header } from './index'; // Import Header from index.js
+import { useState } from 'react';
 
-// Create a reusable transporter object 
-// (this remains outside the handler to maintain the connection pool)
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
-  },
-  // Add these options to speed up the connection
-  connectionTimeout: 5000, // 5 seconds
-  greetingTimeout: 5000,   // 5 seconds
-  socketTimeout: 5000,     // 5 seconds
-  pool: true,              // Use connection pooling
-  maxConnections: 5,       // Maximum number of connections to pool
-});
+export default function Contact() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState(''); // '', 'sending', 'success', 'error'
+  const [errorMessage, setErrorMessage] = useState('');
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    const { name, email, message } = req.body;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('sending');
     
-    // Validate form data
-    if (!name || !email || !message) {
-      return res.status(400).json({ error: 'All fields are required' });
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setStatus('success');
+        setName('');
+        setEmail('');
+        setMessage('');
+      } else {
+        setStatus('error');
+        setErrorMessage(data.error || 'Failed to send message');
+      }
+    } catch (error) {
+      setStatus('error');
+      setErrorMessage('Failed to send message. Please try again.');
     }
-    
-    // Set up email data
-    const mailOptions = {
-      from: `"SEO Agent Contact" <${process.env.SMTP_USER}>`,
-      to: process.env.CONTACT_EMAIL,
-      replyTo: email,
-      subject: `New Contact Form Submission from ${name}`,
-      text: `
-        Name: ${name}
-        Email: ${email}
+  };
+
+  return (
+    <div style={{ fontFamily: "Arial, sans-serif" }}>
+      <Head>
+        <title>Contact Us - SEO Agent</title>
+        <meta name="description" content="Contact the SEO Agent team" />
+      </Head>
+      
+      <Header />
+      
+      <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+        <h1 style={{ color: "#333", marginBottom: "20px" }}>Contact Us</h1>
         
-        Message:
-        ${message}
-      `,
-      html: `
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, '<br>')}</p>
-      `,
-    };
-    
-    // Send the email with a shorter timeout
-    await transporter.sendMail(mailOptions);
-    
-    return res.status(200).json({ success: true });
-  } catch (error) {
-    console.error('Error sending email:', error);
-    return res.status(500).json({ error: 'Failed to send email' });
-  }
+        <p style={{ marginBottom: "20px", lineHeight: "1.5" }}>
+          Have questions about our SEO tools? Want to provide feedback? Contact us using the form below.
+        </p>
+        
+        {status === 'success' ? (
+          <div style={{ 
+            padding: "15px", 
+            backgroundColor: "#d4edda", 
+            color: "#155724", 
+            borderRadius: "4px", 
+            marginBottom: "20px" 
+          }}>
+            <p>Thank you for your message! We'll get back to you soon.</p>
+            <button 
+              onClick={() => setStatus('')}
+              style={{ 
+                marginTop: "10px",
+                padding: "8px 16px", 
+                backgroundColor: "#28a745", 
+                color: "white", 
+                border: "none", 
+                borderRadius: "4px", 
+                cursor: "pointer" 
+              }}
+            >
+              Send Another Message
+            </button>
+          </div>
+        ) : (
+          <form style={{ marginTop: "30px" }} onSubmit={handleSubmit}>
+            <div style={{ marginBottom: "15px" }}>
+              <label htmlFor="name" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
+                Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                style={{ 
+                  width: "100%", 
+                  padding: "10px", 
+                  border: "1px solid #ccc", 
+                  borderRadius: "4px",
+                  fontSize: "16px"
+                }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: "15px" }}>
+              <label htmlFor="email" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                style={{ 
+                  width: "100%", 
+                  padding: "10px", 
+                  border: "1px solid #ccc", 
+                  borderRadius: "4px",
+                  fontSize: "16px"
+                }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: "15px" }}>
+              <label htmlFor="message" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
+                Message
+              </label>
+              <textarea
+                id="message"
+                rows="5"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+                style={{ 
+                  width: "100%", 
+                  padding: "10px", 
+                  border: "1px solid #ccc", 
+                  borderRadius: "4px",
+                  fontSize: "16px"
+                }}
+              ></textarea>
+            </div>
+            
+            {status === 'error' && (
+              <div style={{ 
+                padding: "15px", 
+                backgroundColor: "#f8d7da", 
+                color: "#721c24", 
+                borderRadius: "4px", 
+                marginBottom: "20px" 
+              }}>
+                <p>{errorMessage}</p>
+              </div>
+            )}
+            
+            <button
+              type="submit"
+              disabled={status === 'sending'}
+              style={{ 
+                padding: "10px 20px", 
+                backgroundColor: status === 'sending' ? "#6c757d" : "#0070f3", 
+                color: "white", 
+                border: "none", 
+                borderRadius: "4px", 
+                fontSize: "16px",
+                cursor: status === 'sending' ? "not-allowed" : "pointer"
+              }}
+            >
+              {status === 'sending' ? 'Sending...' : 'Send Message'}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
 }
