@@ -1,91 +1,64 @@
-import Head from 'next/head';
-import { Header } from './index'; // Import Header from index.js
+// pages/api/contact.js
+import nodemailer from 'nodemailer';
 
-export default function Contact() {
-  return (
-    <div style={{ fontFamily: "Arial, sans-serif" }}>
-      <Head>
-        <title>Contact Us - SEO Agent</title>
-        <meta name="description" content="Contact the SEO Agent team" />
-      </Head>
-      
-      <Header />
-      
-      <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-        <h1 style={{ color: "#333", marginBottom: "20px" }}>Contact Us</h1>
+// Create a reusable transporter object 
+// (this remains outside the handler to maintain the connection pool)
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || '587'),
+  secure: process.env.SMTP_SECURE === 'true',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
+  // Add these options to speed up the connection
+  connectionTimeout: 5000, // 5 seconds
+  greetingTimeout: 5000,   // 5 seconds
+  socketTimeout: 5000,     // 5 seconds
+  pool: true,              // Use connection pooling
+  maxConnections: 5,       // Maximum number of connections to pool
+});
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const { name, email, message } = req.body;
+    
+    // Validate form data
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    
+    // Set up email data
+    const mailOptions = {
+      from: `"SEO Agent Contact" <${process.env.SMTP_USER}>`,
+      to: process.env.CONTACT_EMAIL,
+      replyTo: email,
+      subject: `New Contact Form Submission from ${name}`,
+      text: `
+        Name: ${name}
+        Email: ${email}
         
-        <p style={{ marginBottom: "20px", lineHeight: "1.5" }}>
-          Have questions about our SEO tools? Want to provide feedback? Contact us using the form below.
-        </p>
-        
-        <form style={{ marginTop: "30px" }}>
-          <div style={{ marginBottom: "15px" }}>
-            <label htmlFor="name" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              style={{ 
-                width: "100%", 
-                padding: "10px", 
-                border: "1px solid #ccc", 
-                borderRadius: "4px",
-                fontSize: "16px"
-              }}
-            />
-          </div>
-          
-          <div style={{ marginBottom: "15px" }}>
-            <label htmlFor="email" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              style={{ 
-                width: "100%", 
-                padding: "10px", 
-                border: "1px solid #ccc", 
-                borderRadius: "4px",
-                fontSize: "16px"
-              }}
-            />
-          </div>
-          
-          <div style={{ marginBottom: "15px" }}>
-            <label htmlFor="message" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
-              Message
-            </label>
-            <textarea
-              id="message"
-              rows="5"
-              style={{ 
-                width: "100%", 
-                padding: "10px", 
-                border: "1px solid #ccc", 
-                borderRadius: "4px",
-                fontSize: "16px"
-              }}
-            ></textarea>
-          </div>
-          
-          <button
-            type="submit"
-            style={{ 
-              padding: "10px 20px", 
-              backgroundColor: "#0070f3", 
-              color: "white", 
-              border: "none", 
-              borderRadius: "4px", 
-              fontSize: "16px",
-              cursor: "pointer"
-            }}
-          >
-            Send Message
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+        Message:
+        ${message}
+      `,
+      html: `
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message.replace(/\n/g, '<br>')}</p>
+      `,
+    };
+    
+    // Send the email with a shorter timeout
+    await transporter.sendMail(mailOptions);
+    
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return res.status(500).json({ error: 'Failed to send email' });
+  }
 }
