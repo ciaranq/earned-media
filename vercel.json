@@ -1,0 +1,8 @@
+{
+    "functions": {
+      "pages/api/contact.js": {
+        "maxDuration": 60
+      }
+    }
+  }
+  
