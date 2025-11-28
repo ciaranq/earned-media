@@ -78,11 +78,27 @@ export default function Keywords() {
           High level keyword research for the website
         </p>
 
-        <div style={{ marginBottom: "25px", padding: "12px 18px", backgroundColor: "#F0FDF4", border: "1px solid #22C55E", borderRadius: "6px", display: "inline-block" }}>
-          <a href="/screaming-frog" style={{ color: "#15803D", fontWeight: "600", textDecoration: "none", fontSize: "15px" }}>
-            ScreamingFrog Results →
-          </a>
-          <span style={{ color: "#6B7280", marginLeft: "10px", fontSize: "14px" }}>View detailed SEO crawl analysis</span>
+        <div style={{ marginBottom: "25px", display: "flex", gap: "15px", flexWrap: "wrap" }}>
+          <div style={{ padding: "12px 18px", backgroundColor: "#FEF3C7", border: "1px solid #F59E0B", borderRadius: "6px" }}>
+            <a href="/keyword-analysis" style={{ color: "#92400E", fontWeight: "600", textDecoration: "none", fontSize: "15px" }}>
+              📊 Keyword Analysis Reports →
+            </a>
+            <span style={{ color: "#6B7280", marginLeft: "10px", fontSize: "14px" }}>Deep keyword analysis with crawl data</span>
+          </div>
+
+          <div style={{ padding: "12px 18px", backgroundColor: "#F0FDF4", border: "1px solid #22C55E", borderRadius: "6px" }}>
+            <a href="/screaming-frog" style={{ color: "#15803D", fontWeight: "600", textDecoration: "none", fontSize: "15px" }}>
+              ScreamingFrog Results →
+            </a>
+            <span style={{ color: "#6B7280", marginLeft: "10px", fontSize: "14px" }}>View detailed SEO crawl analysis</span>
+          </div>
+
+          <div style={{ padding: "12px 18px", backgroundColor: "#EFF6FF", border: "1px solid #3B82F6", borderRadius: "6px" }}>
+            <a href="/seonaut" style={{ color: "#1E40AF", fontWeight: "600", textDecoration: "none", fontSize: "15px" }}>
+              SEONaut Report →
+            </a>
+            <span style={{ color: "#6B7280", marginLeft: "10px", fontSize: "14px" }}>Technical audit results (Nov 28, 2025)</span>
+          </div>
         </div>
 
         <form onSubmit={handleAnalysis} style={{ marginBottom: "30px" }}>
