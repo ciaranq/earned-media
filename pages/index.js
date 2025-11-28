@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
-export function Header() {
+export function Header({ currentUrl }) {
+  const urlParam = currentUrl ? `?url=${encodeURIComponent(currentUrl)}` : '';
+
   return (
-    <header style={{ 
-      borderBottom: '1px solid #e5e7eb', 
+    <header style={{
+      borderBottom: '1px solid #e5e7eb',
       boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
       marginBottom: '20px',
       backgroundColor: 'white'
@@ -19,11 +22,13 @@ export function Header() {
       }}>
         <div>
           <a href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#0070f3' }}>SEO Agent</span>
+            <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#0070f3' }}>SEO Agent for Earned Media</span>
           </a>
         </div>
         <div style={{ display: 'flex', gap: '24px' }}>
-          <a href="https://nextjs-boilerplate-organicseo.vercel.app/projects" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Projects</a>
+          <a href={`/technical${urlParam}`} style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Technical</a>
+          <a href={`/keywords${urlParam}`} style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Keywords</a>
+          <a href={`/strategy${urlParam}`} style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Strategy</a>
           <a href="/about" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>About</a>
           <a href="/tools" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Tools</a>
           <a href="/contact" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Contact</a>
@@ -34,16 +39,17 @@ export function Header() {
 }
 
 export default function SEOAnalyzer() {
+  const router = useRouter();
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
-  
+
   async function handleAnalysis(e) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
       console.log("Sending analysis request for:", url);
       const response = await fetch('/api/analyze', {
@@ -53,11 +59,11 @@ export default function SEOAnalyzer() {
         },
         body: JSON.stringify({ url })
       });
-      
+
       // Get the raw text first
       const responseText = await response.text();
       console.log("Raw response:", responseText);
-      
+
       // Try to parse it as JSON
       let data;
       try {
@@ -66,11 +72,11 @@ export default function SEOAnalyzer() {
         console.error("Error parsing JSON:", parseError);
         throw new Error(`Server returned invalid JSON: ${responseText.substring(0, 100)}...`);
       }
-      
+
       if (!response.ok) {
         throw new Error(data.message || `Error: ${response.status} ${response.statusText}`);
       }
-      
+
       setResults(data);
     } catch (err) {
       console.error("Analysis error:", err);
@@ -83,15 +89,18 @@ export default function SEOAnalyzer() {
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", maxWidth: "800px", margin: "0 auto" }}>
       <Head>
-        <title>SEO Analyzer - basic SEO agent by Ciaran Quinlan</title>
-        <meta name="description" content="Analyze SEO factors of any website" />
+        <title>SEO Agent for Earned Media</title>
+        <meta name="description" content="Comprehensive SEO analysis for Earned Media clients" />
       </Head>
-    
-    <Header />
-  
+
+    <Header currentUrl={url} />
+
     <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
 
-      <h1 style={{ color: "#333", marginBottom: "20px" }}>SEO Analyzer (AI SEO agent by Ciaran)</h1>
+      <h1 style={{ color: "#333", marginBottom: "10px" }}>SEO Agent for Earned Media</h1>
+      <p style={{ color: "#666", marginBottom: "30px", lineHeight: "1.6" }}>
+        Enter a website URL to begin comprehensive SEO analysis
+      </p>
       
       <form onSubmit={handleAnalysis} style={{ marginBottom: "30px" }}>
         <div style={{ marginBottom: "15px" }}>
@@ -253,6 +262,71 @@ export default function SEOAnalyzer() {
                 ))}
               </ul>
             )}
+          </div>
+
+          {/* Navigation to detailed analysis */}
+          <div style={{
+            marginTop: "30px",
+            paddingTop: "20px",
+            borderTop: "2px solid #E5E7EB"
+          }}>
+            <h3 style={{ margin: "0 0 15px 0", fontSize: "18px", color: "#333" }}>
+              Continue with Detailed Analysis
+            </h3>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: "15px"
+            }}>
+              <a
+                href={`/technical?url=${encodeURIComponent(url)}`}
+                style={{
+                  display: "block",
+                  padding: "15px 20px",
+                  backgroundColor: "#3B82F6",
+                  color: "white",
+                  textDecoration: "none",
+                  borderRadius: "6px",
+                  textAlign: "center",
+                  fontWeight: "600",
+                  transition: "background-color 0.2s"
+                }}
+              >
+                Technical Audit →
+              </a>
+              <a
+                href={`/keywords?url=${encodeURIComponent(url)}`}
+                style={{
+                  display: "block",
+                  padding: "15px 20px",
+                  backgroundColor: "#8B5CF6",
+                  color: "white",
+                  textDecoration: "none",
+                  borderRadius: "6px",
+                  textAlign: "center",
+                  fontWeight: "600",
+                  transition: "background-color 0.2s"
+                }}
+              >
+                Keyword Research →
+              </a>
+              <a
+                href={`/strategy?url=${encodeURIComponent(url)}`}
+                style={{
+                  display: "block",
+                  padding: "15px 20px",
+                  backgroundColor: "#10B981",
+                  color: "white",
+                  textDecoration: "none",
+                  borderRadius: "6px",
+                  textAlign: "center",
+                  fontWeight: "600",
+                  transition: "background-color 0.2s"
+                }}
+              >
+                SEO Strategy →
+              </a>
+            </div>
           </div>
         </div>
       )}

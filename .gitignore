@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+env-file.sh
 
 # vercel
 .vercel
@@ -39,3 +40,26 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# External SEO Reports (downloaded from third-party tools)
+/site-reports/
+/screamingFrog/
+
+# Generated Sitemaps (should be regenerated, not committed)
+/sitemaps/
+*.xml
+!sitemap.xml
+
+# Temporary Analysis Files
+seoanalyser.txt
+*.csv
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Keep the reports directory but ignore generated reports
+# (commit the .gitkeep but not the actual domain reports)
+/public/reports/*
+!/public/reports/.gitkeep

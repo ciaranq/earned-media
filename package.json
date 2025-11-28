@@ -14,7 +14,10 @@
     "next": "14.0.3",
     "nodemailer": "^6.10.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "reading-time": "^1.5.0",
+    "robots-parser": "^3.0.1",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.1",
