@@ -4,6 +4,14 @@ import { Header } from './index';
 import fs from 'fs';
 import path from 'path';
 
+// Helper function to format dates consistently (avoids hydration errors)
+function formatDate(dateString) {
+  if (!dateString) return 'Unknown';
+  const date = new Date(dateString);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
 export default function KeywordAnalysis({ reports }) {
   const [selectedDomain, setSelectedDomain] = useState(null);
 
@@ -173,16 +181,14 @@ export default function KeywordAnalysis({ reports }) {
                       )}
 
                       <div style={{ fontSize: "12px", color: "#6B7280", marginBottom: "15px" }}>
-                        Analyzed: {new Date(report.data.analyzedAt).toLocaleDateString()}
+                        Analyzed: {formatDate(report.data.analyzedAt)}
                       </div>
                     </div>
                   )}
 
                   <div style={{ display: "flex", gap: "10px" }}>
                     <a
-                      href={`/reports/${report.domain}/index.html`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={`/reports/${report.domain}`}
                       style={{
                         flex: 1,
                         display: "block",

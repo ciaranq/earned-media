@@ -74,10 +74,44 @@ export default function Strategy() {
 
       <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
         <h1 style={{ color: "#333", marginBottom: "10px" }}>SEO Strategy</h1>
-        <p style={{ color: "#666", marginBottom: "30px", lineHeight: "1.6" }}>
+        <p style={{ color: "#666", marginBottom: "20px", lineHeight: "1.6" }}>
           Pick an avenue on the back of the audit & research to create a short 1-3 month strategy.
           This strategy can be supported by the Link Building & Content teams for implementation if needed.
         </p>
+
+        {/* Visory Strategy Link */}
+        <div style={{
+          backgroundColor: "#EFF6FF",
+          border: "2px solid #3B82F6",
+          borderRadius: "8px",
+          padding: "20px",
+          marginBottom: "30px"
+        }}>
+          <h2 style={{ color: "#1E40AF", marginTop: 0, marginBottom: "10px", fontSize: "20px" }}>
+            📋 Visory 3-Month SEO Strategy
+          </h2>
+          <p style={{ color: "#1E3A8A", marginBottom: "15px", lineHeight: "1.6" }}>
+            View a detailed 3-month SEO and conversion strategy for Visory
+          </p>
+          <a
+            href="/strategy/visory-strategy"
+            style={{
+              display: "inline-block",
+              padding: "10px 20px",
+              backgroundColor: "#3B82F6",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: "6px",
+              fontSize: "16px",
+              fontWeight: "600",
+              transition: "background-color 0.2s"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#2563EB"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#3B82F6"}
+          >
+            View Visory Strategy →
+          </a>
+        </div>
 
         <form onSubmit={handleAnalysis} style={{ marginBottom: "30px" }}>
           <div style={{ marginBottom: "15px" }}>
