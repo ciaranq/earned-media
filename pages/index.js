@@ -20,18 +20,33 @@ export function Header({ currentUrl }) {
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
-        <div>
-          <a href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#0070f3' }}>SEO Agent for Earned Media</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            <img
+              src="/Earned-Media-Email-Sig-25%25.gif"
+              alt="Earned Media Logo"
+              style={{ height: '50px', width: 'auto' }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
           </a>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1.2' }}>
+              <span style={{ color: '#ea401d' }}>SEO </span>
+              <span style={{ color: '#22988d' }}>Agent</span>
+            </div>
+            <div style={{ fontSize: '24px', fontWeight: 'bold', lineHeight: '1.2' }}>
+              <span style={{ color: '#009bd8' }}>Earned </span>
+              <span style={{ color: '#fd9c2c' }}>Media</span>
+            </div>
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '24px' }}>
           <a href={`/technical${urlParam}`} style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Technical</a>
           <a href={`/keywords${urlParam}`} style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Keywords</a>
           <a href={`/strategy${urlParam}`} style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Strategy</a>
           <a href="/about" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>About</a>
-          <a href="/tools" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Tools</a>
-          <a href="/contact" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Contact</a>
         </div>
       </nav>
     </header>
