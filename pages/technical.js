@@ -206,6 +206,74 @@ export default function TechnicalSEO() {
           </div>
         </div>
 
+        {/* Security Headers Section */}
+        <div style={{
+          backgroundColor: "#FEF3C7",
+          padding: "20px",
+          borderRadius: "8px",
+          marginBottom: "30px",
+          border: "1px solid #F59E0B"
+        }}>
+          <h2 style={{ color: "#92400E", marginBottom: "15px", fontSize: "20px" }}>Security Headers Analysis</h2>
+          <p style={{ color: "#4B5563", lineHeight: "1.6", marginBottom: "15px" }}>
+            Security headers protect your website against common attacks like XSS, clickjacking, and MIME sniffing.
+            They're also a ranking factor for search engines.
+          </p>
+
+          <div style={{ marginBottom: "20px" }}>
+            <a
+              href={url ? `https://securityheaders.com/?q=${encodeURIComponent(url)}` : 'https://securityheaders.com/'}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-block",
+                padding: "12px 24px",
+                backgroundColor: "#F59E0B",
+                color: "#fff",
+                textDecoration: "none",
+                borderRadius: "6px",
+                fontWeight: "600",
+                transition: "background-color 0.2s"
+              }}
+            >
+              {url ? `Check Security Headers for ${new URL(url).hostname}` : 'Check Security Headers'}
+            </a>
+          </div>
+
+          <h3 style={{ color: "#92400E", marginTop: "20px", marginBottom: "10px", fontSize: "16px" }}>
+            Required Headers for A Grade:
+          </h3>
+          <div style={{ backgroundColor: "#fff", padding: "15px", borderRadius: "6px", marginBottom: "10px" }}>
+            <ul style={{ color: "#4B5563", lineHeight: "1.8", marginLeft: "20px" }}>
+              <li style={{ marginBottom: "8px" }}>
+                <strong>Strict-Transport-Security (HSTS)</strong> - Forces HTTPS connections
+              </li>
+              <li style={{ marginBottom: "8px" }}>
+                <strong>Content-Security-Policy (CSP)</strong> - Prevents XSS and injection attacks
+              </li>
+              <li style={{ marginBottom: "8px" }}>
+                <strong>X-Frame-Options</strong> - Prevents clickjacking attacks
+              </li>
+              <li style={{ marginBottom: "8px" }}>
+                <strong>X-Content-Type-Options</strong> - Prevents MIME sniffing
+              </li>
+              <li style={{ marginBottom: "8px" }}>
+                <strong>X-XSS-Protection</strong> - Enables browser XSS filter (legacy)
+              </li>
+              <li style={{ marginBottom: "8px" }}>
+                <strong>Referrer-Policy</strong> - Controls referrer information sharing
+              </li>
+              <li style={{ marginBottom: "8px" }}>
+                <strong>Permissions-Policy</strong> - Controls browser features (camera, microphone, etc.)
+              </li>
+            </ul>
+          </div>
+
+          <p style={{ color: "#78350F", fontSize: "14px", fontStyle: "italic", marginTop: "15px" }}>
+            Target Score: A or A+ | SEO Impact: High | User Trust: Critical
+          </p>
+        </div>
+
         {error && (
           <div style={{
             backgroundColor: "#FEE2E2",
