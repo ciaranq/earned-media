@@ -16,6 +16,7 @@ export default async function handler(req, res) {
 
     try {
       let keywordList;
+      let expandedFromSeed = false;
 
       if (mode === 'url' && url) {
         // Extract keywords from URL
@@ -29,8 +30,29 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'No valid keywords found' });
       }
 
+      // If only 1-3 keywords provided, expand with related keywords
+      if (keywordList.length <= 3) {
+        const originalKeywords = [...keywordList];
+        const allRelated = new Set(keywordList);
+
+        originalKeywords.forEach(kw => {
+          const related = generateRelatedKeywords(kw);
+          related.forEach(r => allRelated.add(r));
+        });
+
+        keywordList = [...allRelated];
+        expandedFromSeed = true;
+      }
+
       // Cluster the keywords
       const clusters = clusterKeywords(keywordList);
+
+      // Add flag if keywords were expanded
+      if (expandedFromSeed) {
+        clusters.forEach(c => {
+          c.expandedFromSeed = true;
+        });
+      }
 
       // Generate strategy for each cluster
       const strategy = generateClusterStrategy(clusters);
@@ -43,6 +65,8 @@ export default async function handler(req, res) {
 
       return res.status(200).json({
         totalKeywords: keywordList.length,
+        expandedFromSeed,
+        seedKeywords: expandedFromSeed ? parseKeywordInput(keywords) : null,
         clusters,
         strategy,
         recommendations,
@@ -200,13 +224,100 @@ const TOPIC_CATEGORIES = {
     intent: 'Commercial',
     contentType: 'Service pages and case studies'
   },
-  'industry': {
-    name: 'Industry Specific',
-    keywords: ['industry', 'sector', 'niche', 'market', 'vertical', 'healthcare', 'finance', 'legal', 'real estate', 'technology', 'education', 'manufacturing'],
+  'finance': {
+    name: 'Finance & Accounting',
+    keywords: ['finance', 'financial', 'accounting', 'accountant', 'bookkeeping', 'bookkeeper', 'tax', 'taxes', 'taxation', 'payroll', 'invoice', 'invoicing', 'budget', 'budgeting', 'cash flow', 'profit', 'revenue', 'expense', 'expenses', 'audit', 'auditing', 'cpa', 'quickbooks', 'xero', 'accounts', 'receivable', 'payable', 'ledger', 'reconciliation', 'financial statements', 'balance sheet', 'income statement', 'bank reconciliation', 'gst', 'bas', 'superannuation'],
+    intent: 'Commercial',
+    contentType: 'Service pages and educational guides'
+  },
+  'legal': {
+    name: 'Legal Services',
+    keywords: ['legal', 'lawyer', 'attorney', 'law', 'litigation', 'contract', 'contracts', 'compliance', 'regulatory', 'court', 'lawsuit', 'dispute', 'mediation', 'arbitration', 'intellectual property', 'trademark', 'patent', 'copyright'],
+    intent: 'Commercial',
+    contentType: 'Service pages and legal guides'
+  },
+  'healthcare': {
+    name: 'Healthcare & Medical',
+    keywords: ['healthcare', 'health', 'medical', 'doctor', 'physician', 'clinic', 'hospital', 'patient', 'treatment', 'therapy', 'diagnosis', 'wellness', 'fitness', 'nutrition', 'mental health', 'dental', 'dentist', 'pharmacy', 'nursing'],
     intent: 'Informational',
-    contentType: 'Industry-specific content and guides'
+    contentType: 'Health guides and service pages'
+  },
+  'realestate': {
+    name: 'Real Estate & Property',
+    keywords: ['real estate', 'property', 'properties', 'house', 'home', 'homes', 'apartment', 'condo', 'rent', 'rental', 'lease', 'mortgage', 'buyer', 'seller', 'agent', 'realtor', 'listing', 'investment property', 'commercial property'],
+    intent: 'Transactional',
+    contentType: 'Property listings and buying guides'
+  },
+  'education': {
+    name: 'Education & Training',
+    keywords: ['education', 'learning', 'training', 'course', 'courses', 'class', 'classes', 'tutorial', 'certification', 'degree', 'school', 'university', 'college', 'student', 'teacher', 'instructor', 'online learning', 'elearning', 'workshop'],
+    intent: 'Informational',
+    contentType: 'Educational content and course pages'
+  },
+  'hr': {
+    name: 'HR & Recruitment',
+    keywords: ['hr', 'human resources', 'recruitment', 'hiring', 'employee', 'employees', 'staff', 'workforce', 'talent', 'job', 'jobs', 'career', 'resume', 'interview', 'onboarding', 'training', 'performance', 'compensation', 'benefits'],
+    intent: 'Commercial',
+    contentType: 'HR guides and recruitment content'
+  },
+  'it': {
+    name: 'IT & Technology Services',
+    keywords: ['it', 'technology', 'software', 'hardware', 'computer', 'network', 'cybersecurity', 'security', 'cloud', 'saas', 'managed services', 'it support', 'helpdesk', 'infrastructure', 'data center', 'backup', 'disaster recovery'],
+    intent: 'Commercial',
+    contentType: 'IT service pages and tech guides'
   }
 };
+
+// Generate related keywords for a given keyword
+function generateRelatedKeywords(keyword) {
+  const related = [];
+  const kw = keyword.toLowerCase().trim();
+
+  // Common keyword modifiers
+  const prefixes = ['best', 'top', 'affordable', 'professional', 'local', 'online', 'small business'];
+  const suffixes = ['services', 'software', 'tips', 'guide', 'how to', 'for small business', 'near me', 'online', 'cost', 'pricing'];
+  const questions = ['what is', 'how to', 'why', 'when to', 'how much does', 'benefits of'];
+
+  // Add prefix variations
+  prefixes.forEach(prefix => {
+    related.push(`${prefix} ${kw}`);
+  });
+
+  // Add suffix variations
+  suffixes.forEach(suffix => {
+    related.push(`${kw} ${suffix}`);
+  });
+
+  // Add question variations
+  questions.forEach(q => {
+    related.push(`${q} ${kw}`);
+  });
+
+  // Industry-specific expansions
+  const industryExpansions = {
+    'bookkeeping': ['accounting', 'bookkeeper', 'accounts payable', 'accounts receivable', 'payroll', 'tax preparation', 'financial reporting', 'bank reconciliation', 'invoicing', 'cash flow management'],
+    'accounting': ['bookkeeping', 'tax', 'audit', 'financial statements', 'cpa', 'accountant', 'payroll'],
+    'tax': ['tax preparation', 'tax filing', 'tax return', 'tax planning', 'tax accountant', 'business tax', 'personal tax'],
+    'marketing': ['digital marketing', 'social media marketing', 'content marketing', 'email marketing', 'seo', 'ppc', 'advertising'],
+    'seo': ['search engine optimization', 'local seo', 'technical seo', 'on-page seo', 'link building', 'keyword research'],
+    'legal': ['lawyer', 'attorney', 'law firm', 'legal services', 'contract', 'litigation'],
+    'real estate': ['property', 'homes for sale', 'real estate agent', 'property management', 'rental properties'],
+    'software': ['software development', 'custom software', 'saas', 'application development', 'software solutions']
+  };
+
+  // Add industry-specific related keywords
+  Object.entries(industryExpansions).forEach(([key, expansions]) => {
+    if (kw.includes(key) || key.includes(kw)) {
+      expansions.forEach(exp => {
+        if (!related.includes(exp) && exp !== kw) {
+          related.push(exp);
+        }
+      });
+    }
+  });
+
+  return related;
+}
 
 // Cluster keywords into topically related groups
 function clusterKeywords(keywords) {

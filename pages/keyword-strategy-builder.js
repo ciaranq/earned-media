@@ -290,6 +290,31 @@ export default function KeywordStrategyBuilder() {
         {/* Results Section */}
         {results && (
           <div>
+            {/* Expansion Notice */}
+            {results.expandedFromSeed && (
+              <div style={{
+                backgroundColor: '#EFF6FF',
+                border: '1px solid #3B82F6',
+                borderRadius: '8px',
+                padding: isMobile ? '14px' : '16px',
+                marginBottom: isMobile ? '16px' : '20px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px'
+              }}>
+                <span style={{ fontSize: '20px' }}>&#128161;</span>
+                <div>
+                  <strong style={{ color: '#1E40AF', display: 'block', marginBottom: '4px' }}>
+                    Keywords Expanded
+                  </strong>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#1E40AF' }}>
+                    We expanded your seed keyword{results.seedKeywords?.length > 1 ? 's' : ''} "{results.seedKeywords?.join('", "')}"
+                    into {results.totalKeywords} related keywords to provide a comprehensive strategy.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Summary Stats */}
             <div style={{
               display: 'grid',
