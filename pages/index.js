@@ -45,6 +45,7 @@ export function Header({ currentUrl }) {
         <div style={{ display: 'flex', gap: '24px' }}>
           <a href={`/technical${urlParam}`} style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Technical</a>
           <a href={`/keywords${urlParam}`} style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Keywords</a>
+          <a href={`/keyword-strategy-builder${urlParam}`} style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Cluster Builder</a>
           <a href={`/strategy${urlParam}`} style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>Strategy</a>
           <a href="/about" style={{ fontSize: '14px', fontWeight: '600', color: '#111', textDecoration: 'none' }}>About</a>
         </div>
