@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Header } from './index';
+import ErrorBoundary from '../components/ErrorBoundary';
 import TechnicalResults from '../components/TechnicalResults';
+import { exportTechnicalAuditAsCSV, generateHTMLReport, downloadFile } from '../utils/exportFormats';
 
 export default function TechnicalSEO() {
   const router = useRouter();
@@ -59,14 +61,29 @@ export default function TechnicalSEO() {
     }
   }
 
-  return (
-    <div style={{ fontFamily: "Arial, sans-serif" }}>
-      <Head>
-        <title>Technical SEO Audit - SEO Agent for Earned Media</title>
-        <meta name="description" content="Comprehensive technical SEO audit identifying issues and prioritising corrections" />
-      </Head>
+  function handleExportCSV() {
+    if (!results) return;
+    const csv = exportTechnicalAuditAsCSV(results);
+    const domain = new URL(url).hostname;
+    downloadFile(csv, `technical-audit-${domain}.csv`, 'text/csv');
+  }
 
-      <Header currentUrl={url} />
+  function handleExportHTML() {
+    if (!results) return;
+    const report = generateHTMLReport(results, url);
+    const domain = new URL(url).hostname;
+    downloadFile(report, `technical-audit-${domain}.html`, 'text/html');
+  }
+
+  return (
+    <ErrorBoundary>
+      <div style={{ fontFamily: "Arial, sans-serif" }}>
+        <Head>
+          <title>Technical SEO Audit - SEO Agent for Earned Media</title>
+          <meta name="description" content="Comprehensive technical SEO audit identifying issues and prioritising corrections" />
+        </Head>
+
+        <Header currentUrl={url} />
 
       <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
         <h1 style={{ color: "#333", marginBottom: "10px" }}>
@@ -123,12 +140,12 @@ export default function TechnicalSEO() {
             <li style={{ marginBottom: "10px" }}>
               Additional tools for deeper analysis:
               <a
-                href={url ? `https://tools.pingdom.com/#${url}` : '#'}
+                href="https://inspectwp.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#0070f3", textDecoration: "none", fontWeight: "500", marginLeft: "5px" }}
               >
-                Pingdom
+                InspectWP
               </a>,
               <a
                 href={url ? `https://gtmetrix.com/?url=${encodeURIComponent(url)}` : '#'}
@@ -240,6 +257,25 @@ export default function TechnicalSEO() {
             </a>
           </div>
 
+          <div style={{ backgroundColor: "#fff", padding: "15px", borderRadius: "6px", marginBottom: "20px", textAlign: "center" }}>
+            <p style={{ color: "#92400E", fontSize: "14px", fontWeight: "600", marginBottom: "10px" }}>
+              Example Security Headers Scan Result:
+            </p>
+            <img
+              src="/visoryheaders.png"
+              alt="Security Headers Scan Example"
+              style={{
+                maxWidth: "100%",
+                height: "auto",
+                borderRadius: "4px",
+                border: "1px solid #E5E7EB"
+              }}
+            />
+            <p style={{ color: "#6B7280", fontSize: "12px", marginTop: "8px", fontStyle: "italic" }}>
+              Sample scan showing security header status and grade
+            </p>
+          </div>
+
           <h3 style={{ color: "#92400E", marginTop: "20px", marginBottom: "10px", fontSize: "16px" }}>
             Required Headers for A Grade:
           </h3>
@@ -288,8 +324,44 @@ export default function TechnicalSEO() {
           </div>
         )}
 
+        {results && (
+          <div style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <button
+              onClick={handleExportCSV}
+              style={{
+                padding: "10px 18px",
+                backgroundColor: "#10B981",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "bold"
+              }}
+            >
+              📥 Download CSV
+            </button>
+            <button
+              onClick={handleExportHTML}
+              style={{
+                padding: "10px 18px",
+                backgroundColor: "#3B82F6",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "bold"
+              }}
+            >
+              📥 Download HTML Report
+            </button>
+          </div>
+        )}
+
         <TechnicalResults results={results} url={url} />
       </div>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

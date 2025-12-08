@@ -12,6 +12,11 @@ const { analyzeRobotsTxt } = require('../../utils/seo/robots-parser');
 const { analyzeSitemap } = require('../../utils/seo/sitemap-parser');
 const { analyzePerformance } = require('../../utils/seo/performance');
 const { analyzeContent } = require('../../utils/seo/content');
+const { assessCoreWebVitals } = require('../../utils/coreWebVitals');
+const { analyzeImages } = require('../../utils/seo/imageOptimization');
+const { analyzeReadability } = require('../../utils/seo/readability');
+const { analyzeSocialMeta } = require('../../utils/seo/socialMeta');
+const { analyzeInternalLinks } = require('../../utils/seo/internalLinks');
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -84,7 +89,11 @@ async function performEnhancedTechnicalAudit(url) {
       robotsResult,
       onPageResult,
       performanceResult,
-      contentResult
+      contentResult,
+      imageResult,
+      readabilityResult,
+      socialMetaResult,
+      internalLinksResult
     ] = await Promise.all([
       // Crawling & Indexing
       analyzeRobotsTxt(url).catch(err => ({
@@ -103,7 +112,19 @@ async function performEnhancedTechnicalAudit(url) {
       })),
 
       // Content Analysis
-      Promise.resolve(analyzeContent($, url))
+      Promise.resolve(analyzeContent($, url)),
+
+      // NEW: Image Optimization Analysis
+      Promise.resolve(analyzeImages($, url)),
+
+      // NEW: Content Readability Analysis
+      Promise.resolve(analyzeReadability($('body').text())),
+
+      // NEW: Social Media Meta Tags Analysis
+      Promise.resolve(analyzeSocialMeta($, url)),
+
+      // NEW: Internal Linking Analysis
+      Promise.resolve(analyzeInternalLinks($, url))
     ]);
 
     // PHASE 3: Sitemap (depends on robots.txt)
@@ -130,10 +151,23 @@ async function performEnhancedTechnicalAudit(url) {
       } : i),
       ...(onPageResult.issues || []),
       ...(performanceResult.issues || []),
-      ...(contentResult.issues || [])
+      ...(contentResult.issues || []),
+      ...(imageResult.issues || []),
+      ...(readabilityResult.issues || []),
+      ...(socialMetaResult.issues || []),
+      ...(internalLinksResult.issues || [])
     ];
 
     const score = calculateOverallScore(allIssues, onPageResult, performanceResult, contentResult);
+
+    // Assess Core Web Vitals
+    const coreWebVitals = assessCoreWebVitals({
+      loadTime: loadTime,
+      resourceCount: countScriptTags($),
+      imagesWithoutDimensions: countImagesWithoutDimensions($),
+      adsCount: countAdsAndEmbeds($),
+      dynamicContent: hasLazyLoadingImages($)
+    });
 
     console.log(`Enhanced technical audit complete for ${url}, score: ${score}`);
 
@@ -166,7 +200,12 @@ async function performEnhancedTechnicalAudit(url) {
           charset: onPageResult.charset,
           loadTime: loadTime,
           responseCode: response.status
-        }
+        },
+        coreWebVitals: coreWebVitals,
+        imageOptimization: imageResult,
+        readability: readabilityResult,
+        socialMeta: socialMetaResult,
+        internalLinks: internalLinksResult
       },
       issues: prioritizeIssues(allIssues),
       summary: generateAuditSummary(score, allIssues)
@@ -405,4 +444,46 @@ function generateAuditSummary(score, issues) {
   } else {
     return `Poor technical SEO (${score}/100). Significant improvements needed - ${criticalCount + highCount} priority issues require immediate attention.`;
   }
+}
+
+/**
+ * Count script tags for Core Web Vitals analysis
+ */
+function countScriptTags($) {
+  return $('script').length;
+}
+
+/**
+ * Count images without dimensions for CLS analysis
+ */
+function countImagesWithoutDimensions($) {
+  let count = 0;
+  $('img').each((i, el) => {
+    const hasWidth = $(el).attr('width');
+    const hasHeight = $(el).attr('height');
+    const hasStyle = $(el).attr('style')?.includes('width') || $(el).attr('style')?.includes('height');
+    if (!hasWidth && !hasHeight && !hasStyle) {
+      count++;
+    }
+  });
+  return count;
+}
+
+/**
+ * Count ads and embed elements for CLS analysis
+ */
+function countAdsAndEmbeds($) {
+  const ads = $('[class*="ad"]').length;
+  const embeds = $('iframe').length;
+  const objects = $('object').length;
+  return Math.min(ads + embeds + objects, 10); // Cap at 10 to avoid skewing results
+}
+
+/**
+ * Check for lazy loading indicators
+ */
+function hasLazyLoadingImages($) {
+  const lazyImages = $('img[loading="lazy"]').length;
+  const lazyDataSrcImages = $('img[data-src]').length;
+  return lazyImages > 0 || lazyDataSrcImages > 0;
 }

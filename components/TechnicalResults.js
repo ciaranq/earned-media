@@ -60,6 +60,73 @@ export default function TechnicalResults({ results, url }) {
         </div>
       )}
 
+      {/* Core Web Vitals Section */}
+      {results.data?.coreWebVitals && (
+        <Section title="Core Web Vitals">
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{
+              backgroundColor: results.data.coreWebVitals.status === 'good' ? '#D1FAE5' : results.data.coreWebVitals.status === 'poor' ? '#FEE2E2' : '#FEF3C7',
+              borderLeft: `4px solid ${results.data.coreWebVitals.status === 'good' ? '#10B981' : results.data.coreWebVitals.status === 'poor' ? '#EF4444' : '#F59E0B'}`,
+              padding: '15px',
+              borderRadius: '6px',
+              marginBottom: '15px'
+            }}>
+              <div style={{ fontWeight: '600', marginBottom: '10px', color: results.data.coreWebVitals.status === 'good' ? '#065F46' : results.data.coreWebVitals.status === 'poor' ? '#7F1D1D' : '#92400E' }}>
+                Status: {results.data.coreWebVitals.status === 'good' ? '✓ Good' : results.data.coreWebVitals.status === 'poor' ? '✗ Poor' : '⚠ Needs Improvement'}
+              </div>
+              {results.data.coreWebVitals.passedAllTests && (
+                <p style={{ margin: 0, fontSize: '14px', color: results.data.coreWebVitals.status === 'good' ? '#047857' : '#92400E' }}>
+                  Your page passes all Core Web Vitals tests!
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", marginBottom: "20px" }}>
+            <div style={{ backgroundColor: '#F9FAFB', padding: '15px', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontWeight: '600', marginBottom: '8px', color: '#333' }}>LCP (Largest Contentful Paint)</div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: results.data.coreWebVitals.metrics.lcp.status === 'good' ? '#10B981' : '#EF4444', marginBottom: '5px' }}>
+                {results.data.coreWebVitals.metrics.lcp.value}ms
+              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>
+                Target: {results.data.coreWebVitals.metrics.lcp.status === 'good' ? '✓' : '✗'} &lt;2500ms
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: '#F9FAFB', padding: '15px', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontWeight: '600', marginBottom: '8px', color: '#333' }}>FID (First Input Delay)</div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: results.data.coreWebVitals.metrics.fid.status === 'good' ? '#10B981' : '#EF4444', marginBottom: '5px' }}>
+                {results.data.coreWebVitals.metrics.fid.estimatedValue}ms
+              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>
+                Target: {results.data.coreWebVitals.metrics.fid.status === 'good' ? '✓' : '✗'} &lt;100ms
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: '#F9FAFB', padding: '15px', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontWeight: '600', marginBottom: '8px', color: '#333' }}>CLS (Cumulative Layout Shift)</div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: results.data.coreWebVitals.metrics.cls.status === 'good' ? '#10B981' : '#EF4444', marginBottom: '5px' }}>
+                {results.data.coreWebVitals.metrics.cls.estimatedValue.toFixed(3)}
+              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>
+                Target: {results.data.coreWebVitals.metrics.cls.status === 'good' ? '✓' : '✗'} &lt;0.1
+              </div>
+            </div>
+          </div>
+
+          {results.data.coreWebVitals.recommendations && results.data.coreWebVitals.recommendations.length > 0 && (
+            <div style={{ backgroundColor: '#FEF3C7', padding: '15px', borderRadius: '6px', border: '1px solid #F59E0B' }}>
+              <div style={{ fontWeight: '600', marginBottom: '10px', color: '#92400E' }}>Recommendations:</div>
+              <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', color: '#78350F' }}>
+                {results.data.coreWebVitals.recommendations.slice(0, 5).map((rec, i) => (
+                  <li key={i} style={{ marginBottom: '8px' }}>{rec}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </Section>
+      )}
+
       {/* Crawling & Indexing Section */}
       <Section title="Crawling & Indexing">
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
@@ -210,6 +277,115 @@ export default function TechnicalResults({ results, url }) {
           />
         </div>
       </Section>
+
+      {/* Image Optimization Section */}
+      {results.data?.imageOptimization && (
+        <Section title={`Image Optimization (${results.data.imageOptimization.totalImages} images)`}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "15px", marginBottom: "15px" }}>
+            <MetricCard label="Optimization Score" value={`${results.data.imageOptimization.score}/100`} />
+            <MetricCard label="With Alt Text" value={`${results.data.imageOptimization.metrics.withAlt}/${results.data.imageOptimization.totalImages}`} />
+            <MetricCard label="With Dimensions" value={`${results.data.imageOptimization.metrics.withDimensions}/${results.data.imageOptimization.totalImages}`} />
+            <MetricCard label="Modern Formats" value={`${results.data.imageOptimization.metrics.modernFormats}/${results.data.imageOptimization.totalImages}`} />
+            <MetricCard label="Lazy Loaded" value={`${results.data.imageOptimization.metrics.lazyLoaded}/${results.data.imageOptimization.totalImages}`} />
+          </div>
+          {results.data.imageOptimization.recommendations && results.data.imageOptimization.recommendations.length > 0 && (
+            <div style={{ backgroundColor: '#FEF3C7', padding: '15px', borderRadius: '6px', border: '1px solid #F59E0B' }}>
+              <div style={{ fontWeight: '600', marginBottom: '10px', color: '#92400E' }}>Recommendations:</div>
+              <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', color: '#78350F' }}>
+                {results.data.imageOptimization.recommendations.map((rec, i) => (
+                  <li key={i} style={{ marginBottom: '5px' }}>{rec}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </Section>
+      )}
+
+      {/* Content Readability Section */}
+      {results.data?.readability && (
+        <Section title="Content Readability">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "15px", marginBottom: "15px" }}>
+            <MetricCard label="Flesch Score" value={`${results.data.readability.score}/100`} />
+            <MetricCard label="Grade Level" value={results.data.readability.grade} />
+            <MetricCard label="Reading Level" value={results.data.readability.readingLevel} />
+            <MetricCard label="SEO Impact" value={results.data.readability.seoImpact} />
+            <MetricCard label="Word Count" value={results.data.readability.metrics.wordCount} />
+            <MetricCard label="Avg Sentence" value={`${results.data.readability.metrics.avgWordsPerSentence} words`} />
+          </div>
+          {results.data.readability.recommendations && results.data.readability.recommendations.length > 0 && (
+            <div style={{ backgroundColor: '#E8F4F8', padding: '15px', borderRadius: '6px', border: '1px solid #009bd8' }}>
+              <div style={{ fontWeight: '600', marginBottom: '10px', color: '#075985' }}>Recommendations:</div>
+              <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', color: '#075985' }}>
+                {results.data.readability.recommendations.slice(0, 5).map((rec, i) => (
+                  <li key={i} style={{ marginBottom: '5px' }}>{rec}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </Section>
+      )}
+
+      {/* Social Media Meta Tags Section */}
+      {results.data?.socialMeta && (
+        <Section title="Social Media Optimization">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "15px" }}>
+            <div style={{ backgroundColor: '#F9FAFB', padding: '15px', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontWeight: '600', marginBottom: '10px', color: '#333' }}>Open Graph (Facebook/LinkedIn)</div>
+              <div style={{ fontSize: '13px', color: '#666', lineHeight: '1.6' }}>
+                <div>✓ Title: {results.data.socialMeta.openGraph.title ? 'Present' : '✗ Missing'}</div>
+                <div>✓ Description: {results.data.socialMeta.openGraph.description ? 'Present' : '✗ Missing'}</div>
+                <div>✓ Image: {results.data.socialMeta.openGraph.image ? 'Present' : '✗ Missing'}</div>
+                <div>✓ URL: {results.data.socialMeta.openGraph.url ? 'Present' : '✗ Missing'}</div>
+                <div style={{ marginTop: '10px', fontWeight: '600', color: results.data.socialMeta.openGraph.complete ? '#22C55E' : '#EF4444' }}>
+                  {results.data.socialMeta.openGraph.complete ? '✓ Complete Setup' : '✗ Incomplete'}
+                </div>
+              </div>
+            </div>
+            <div style={{ backgroundColor: '#F9FAFB', padding: '15px', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontWeight: '600', marginBottom: '10px', color: '#333' }}>Twitter Cards</div>
+              <div style={{ fontSize: '13px', color: '#666', lineHeight: '1.6' }}>
+                <div>✓ Card Type: {results.data.socialMeta.twitter.card || '✗ Missing'}</div>
+                <div>✓ Title: {results.data.socialMeta.twitter.title ? 'Present' : '✗ Missing'}</div>
+                <div>✓ Description: {results.data.socialMeta.twitter.description ? 'Present' : '✗ Missing'}</div>
+                <div>✓ Image: {results.data.socialMeta.twitter.image ? 'Present' : '✗ Missing'}</div>
+                <div style={{ marginTop: '10px', fontWeight: '600', color: results.data.socialMeta.twitter.complete ? '#22C55E' : '#EF4444' }}>
+                  {results.data.socialMeta.twitter.complete ? '✓ Complete Setup' : '✗ Incomplete'}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{ backgroundColor: '#FEF3C7', padding: '12px 15px', borderRadius: '6px', fontSize: '13px', color: '#92400E' }}>
+            <strong>Score:</strong> {results.data.socialMeta.score}/100 |
+            <a href="https://www.facebook.com/sharing/inspector" target="_blank" rel="noopener noreferrer" style={{ marginLeft: '10px', color: '#ea401d' }}>Test on Facebook</a> |
+            <a href="https://cards-dev.twitter.com/validator" target="_blank" rel="noopener noreferrer" style={{ marginLeft: '10px', color: '#ea401d' }}>Test on Twitter</a>
+          </div>
+        </Section>
+      )}
+
+      {/* Internal Linking Section */}
+      {results.data?.internalLinks && (
+        <Section title="Internal Linking">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "15px", marginBottom: "15px" }}>
+            <MetricCard label="Total Links" value={results.data.internalLinks.totalLinks} />
+            <MetricCard label="Internal Links" value={results.data.internalLinks.internalLinks} />
+            <MetricCard label="External Links" value={results.data.internalLinks.externalLinks} />
+            <MetricCard label="Link Ratio" value={results.data.internalLinks.metrics.internalToExternalRatio} />
+            <MetricCard label="Generic Anchors" value={results.data.internalLinks.metrics.genericAnchors} />
+          </div>
+          {results.data.internalLinks.topAnchors && results.data.internalLinks.topAnchors.length > 0 && (
+            <div style={{ backgroundColor: '#F9FAFB', padding: '15px', borderRadius: '6px', marginBottom: '15px' }}>
+              <div style={{ fontWeight: '600', marginBottom: '10px', color: '#333' }}>Top Anchor Texts:</div>
+              <div style={{ fontSize: '13px', color: '#666' }}>
+                {results.data.internalLinks.topAnchors.map((anchor, i) => (
+                  <div key={i} style={{ padding: '5px 0', borderBottom: i < results.data.internalLinks.topAnchors.length - 1 ? '1px solid #E5E7EB' : 'none' }}>
+                    <strong>{anchor.text}</strong> ({anchor.count} times)
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Section>
+      )}
 
       {/* Priority Issues Section */}
       <Section title={`Issues Found (${results.issues?.length || 0})`}>

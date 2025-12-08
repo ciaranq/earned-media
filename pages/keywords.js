@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Header } from './index';
+import ErrorBoundary from '../components/ErrorBoundary';
+import { exportKeywordsAsCSV, exportAsJSON, downloadFile } from '../utils/exportFormats';
 
 export default function Keywords() {
   const router = useRouter();
@@ -63,14 +65,29 @@ export default function Keywords() {
     runAnalysis(url);
   }
 
-  return (
-    <div style={{ fontFamily: "Arial, sans-serif" }}>
-      <Head>
-        <title>Keyword Research - SEO Agent for Earned Media</title>
-        <meta name="description" content="High level keyword research for the website" />
-      </Head>
+  function handleExportCSV() {
+    if (!results) return;
+    const csv = exportKeywordsAsCSV(results);
+    const domain = new URL(url).hostname;
+    downloadFile(csv, `keywords-${domain}.csv`, 'text/csv');
+  }
 
-      <Header currentUrl={url} />
+  function handleExportJSON() {
+    if (!results) return;
+    const json = exportAsJSON(results);
+    const domain = new URL(url).hostname;
+    downloadFile(json, `keywords-${domain}.json`, 'application/json');
+  }
+
+  return (
+    <ErrorBoundary>
+      <div style={{ fontFamily: "Arial, sans-serif" }}>
+        <Head>
+          <title>Keyword Research - SEO Agent for Earned Media</title>
+          <meta name="description" content="High level keyword research for the website" />
+        </Head>
+
+        <Header currentUrl={url} />
 
       <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
         <h1 style={{ color: "#333", marginBottom: "10px" }}>Keyword Research</h1>
@@ -162,9 +179,43 @@ export default function Keywords() {
             padding: "20px",
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
           }}>
-            <h2 style={{ margin: "0 0 20px 0", paddingBottom: "15px", borderBottom: "1px solid #eee" }}>
-              Keyword Research for {url}
-            </h2>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", paddingBottom: "15px", borderBottom: "1px solid #eee", flexWrap: "wrap", gap: "10px" }}>
+              <h2 style={{ margin: 0, flex: 1, minWidth: "300px" }}>
+                Keyword Research for {url}
+              </h2>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <button
+                  onClick={handleExportCSV}
+                  style={{
+                    padding: "8px 16px",
+                    backgroundColor: "#10B981",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: "bold"
+                  }}
+                >
+                  📥 Download CSV
+                </button>
+                <button
+                  onClick={handleExportJSON}
+                  style={{
+                    padding: "8px 16px",
+                    backgroundColor: "#8B5CF6",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: "bold"
+                  }}
+                >
+                  📥 Download JSON
+                </button>
+              </div>
+            </div>
 
             <div style={{ marginBottom: "20px", padding: "10px 15px", backgroundColor: "#F0FDF4", border: "1px solid #22C55E", borderRadius: "6px" }}>
               <a href="/screaming-frog" style={{ color: "#15803D", fontWeight: "600", textDecoration: "none" }}>
@@ -218,9 +269,21 @@ export default function Keywords() {
                         {keyword.keyword}
                       </div>
                       <div style={{ fontSize: "14px", color: "#1E3A8A" }}>
-                        <div>Relevance: {keyword.relevance || 'High'}</div>
-                        {keyword.searchIntent && <div>Intent: {keyword.searchIntent}</div>}
-                        {keyword.difficulty && <div>Difficulty: {keyword.difficulty}</div>}
+                        <div>Frequency: {keyword.frequency || 0}</div>
+                        {keyword.intent && <div>Intent: {keyword.intent}</div>}
+                        {keyword.difficulty && (
+                          <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px solid rgba(59,130,246,0.2)" }}>
+                            <div><strong>Difficulty:</strong> {keyword.difficulty.level} ({keyword.difficulty.score}/100)</div>
+                            {keyword.searchVolume && (
+                              <div><strong>Volume:</strong> {keyword.searchVolume.category} ({keyword.searchVolume.range})</div>
+                            )}
+                            {keyword.opportunity && (
+                              <div style={{ color: "#059669", fontWeight: "bold" }}>
+                                <strong>Opportunity:</strong> {keyword.opportunity.level} ({keyword.opportunity.score}/100)
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -250,9 +313,16 @@ export default function Keywords() {
                         {keyword.keyword}
                       </div>
                       <div style={{ fontSize: "14px", color: "#0C4A6E" }}>
-                        <div>Relevance: {keyword.relevance || 'Medium'}</div>
-                        {keyword.searchIntent && <div>Intent: {keyword.searchIntent}</div>}
-                        {keyword.difficulty && <div>Difficulty: {keyword.difficulty}</div>}
+                        <div>Frequency: {keyword.frequency || 0}</div>
+                        {keyword.intent && <div>Intent: {keyword.intent}</div>}
+                        {keyword.difficulty && (
+                          <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px solid rgba(125,211,252,0.3)" }}>
+                            <div><strong>Difficulty:</strong> {keyword.difficulty.level}</div>
+                            {keyword.searchVolume && (
+                              <div><strong>Volume:</strong> {keyword.searchVolume.category}</div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -282,7 +352,17 @@ export default function Keywords() {
                       fontSize: "14px",
                       border: "1px solid #D1D5DB"
                     }}>
-                      {keyword.keyword || keyword}
+                      <div style={{ fontWeight: "500", marginBottom: "6px" }}>
+                        {keyword.keyword || keyword}
+                      </div>
+                      {keyword.difficulty && (
+                        <div style={{ fontSize: "12px", color: "#666" }}>
+                          <div>Difficulty: {keyword.difficulty.level}</div>
+                          {keyword.searchVolume && (
+                            <div>Volume: {keyword.searchVolume.category}</div>
+                          )}
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -342,6 +422,7 @@ export default function Keywords() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

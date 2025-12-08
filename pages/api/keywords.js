@@ -1,4 +1,6 @@
 // API endpoint for Keyword Research
+const { analyzeKeywordOpportunity } = require('../../utils/keywordDifficulty');
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -15,7 +17,16 @@ export default async function handler(req, res) {
 
     try {
       const research = await performKeywordResearch(url);
-      return res.status(200).json(research);
+
+      // Enhance keywords with difficulty and opportunity scoring
+      const enhancedResearch = {
+        ...research,
+        primaryKeywords: research.primaryKeywords.map(kw => enrichKeywordData(kw)),
+        secondaryKeywords: research.secondaryKeywords.map(kw => enrichKeywordData(kw)),
+        longTailKeywords: research.longTailKeywords.map(kw => enrichKeywordData(kw))
+      };
+
+      return res.status(200).json(enhancedResearch);
     } catch (researchError) {
       console.error('Research error:', researchError);
       return res.status(500).json({
@@ -619,4 +630,24 @@ function generateRecommendations(primaryKeywords, secondaryKeywords, industry) {
   const topPrimary = primaryKeywords.slice(0, 3).map(k => k.keyword).join(', ');
 
   return `Focus on optimizing content for primary keywords: ${topPrimary}. Create topic clusters around these terms to establish topical authority in the ${industry} space. Develop supporting content targeting secondary and long-tail variations to capture additional search traffic. Ensure keywords are naturally integrated into titles, headings, meta descriptions, and body content.`;
+}
+
+/**
+ * Enrich keyword data with difficulty and opportunity scoring
+ * Adds difficulty, searchVolume, and opportunity properties to keyword objects
+ */
+function enrichKeywordData(keyword) {
+  const analysis = analyzeKeywordOpportunity(
+    typeof keyword === 'string' ? keyword : keyword.keyword
+  );
+
+  return {
+    keyword: typeof keyword === 'string' ? keyword : keyword.keyword,
+    frequency: keyword.frequency || 0,
+    intent: keyword.intent || 'unknown',
+    difficulty: analysis.difficulty,
+    searchVolume: analysis.searchVolume,
+    opportunity: analysis.opportunity,
+    recommendation: analysis.recommendation
+  };
 }

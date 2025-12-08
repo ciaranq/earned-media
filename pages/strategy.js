@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Header } from './index';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function Strategy() {
   const router = useRouter();
@@ -64,13 +65,14 @@ export default function Strategy() {
   }
 
   return (
-    <div style={{ fontFamily: "Arial, sans-serif" }}>
-      <Head>
-        <title>SEO Strategy - SEO Agent for Earned Media</title>
-        <meta name="description" content="Create a 1-3 month SEO strategy based on audit and research" />
-      </Head>
+    <ErrorBoundary>
+      <div style={{ fontFamily: "Arial, sans-serif" }}>
+        <Head>
+          <title>SEO Strategy - SEO Agent for Earned Media</title>
+          <meta name="description" content="Create a 1-3 month SEO strategy based on audit and research" />
+        </Head>
 
-      <Header currentUrl={url} />
+        <Header currentUrl={url} />
 
       <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
         <h1 style={{ color: "#333", marginBottom: "10px" }}>SEO Strategy</h1>
@@ -429,6 +431,7 @@ export default function Strategy() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
